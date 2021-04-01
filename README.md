@@ -2,74 +2,48 @@
 
 ## Installation
 
-- clone this repository
-- install Composer dependencies
-- symlink the `gitstats` to your `/usr/local/bin`: `ln -s /home/<you>/code/gitstats/gitstats /usr/local/bin/gitstats`
-
-Alternatively you can install the Composer package globally (`composer global require mnapoli/gitstats`)
+```
+composer global require bdelespierre/gitstats
+```
 
 ## Usage
 
-- Add a `.gitstats.yml` file in your current directory:
+- Add a `.gitstats.php` file in your project root directory:
 
-```yaml
-tasks:
-    'Commit message': "git log -1 --pretty=%B | head -n 1"
-    'Commit author': "git log -1 --pretty=%an"
-    'Number of files': "find . -type f | wc -l | xargs"
-    'Number of directories': "find . -type d | wc -l | xargs"
+```php
+<?php
+
+return [
+    'tasks' => [
+        'Commit message' => "git log -1 --pretty=%B | head -n 1",
+        'Commit author' => "git log -1 --pretty=%an",
+        'Number of files' => "find . -type f | wc -l",
+        'Number of directories' => "find . -type d | wc -l",
+    ],
+];
 ```
 
 - Run the application:
 
 ```shell
-$ gitstats run <git-repository-url>
+$ gitstats run
 ```
-
-The repository will be cloned in a temporary directory. All tasks will be run against each commit. Ensure the repository doesn't contain modifications.
 
 The output is formatted as CSV:
 
 ```csv
-Commit,Date,Number of files,Number of directories
-d612a29fae3b0f625b9be819802e93214d4eecd9,2016-08-31T12:55:38+02:00,61,28
-497f22a27896d146a35660f452eba24d3a14db3f,2016-08-31T12:53:01+02:00,61,28
-fc0646f236e6bb0a10b14a67424f932f28eb1062,2016-08-26T19:29:40+02:00,62,28
-221528e63d7aac3aa247dfde191b5f6c380cbb7e,2016-08-25T01:28:55+02:00,62,28
+commit,date,"Commit message","Commit author","Number of files","Number of directories"
+0e75bcac756226986f9e6ba745c0f1944ee482db,"2021-04-01 12:40:04","Major refactoring","Benjamin Delespierre",1647,398
+1cd263613b1b3bb96bff86a04c0e0c42c9427f32,"2018-01-14 11:15:16","Add progress screenshot","Matthieu Napoli",1649,396
+3159438bd963174acac8518d9d58e85fc5fb431f,"2018-01-10 11:48:56","Restrict dependencies correctly","Matthieu Napoli",1649,396
+2dd0cf355552553eebc3614ada24c305393c628c,"2018-01-10 11:48:09","Show a progress bar","Matthieu Napoli",1649,396
+a731d6c9d91c8e4f07db0bec6e22c912a55baef2,"2017-10-22 18:02:03","MIT License","Matthieu Napoli",1649,396
 ...
 ```
 
 You can write the output to a file:
 
 ```shell
-$ gitstats run <git-repository-url> > results.csv
+$ gitstats run > gistats.csv
 ```
 
-You can then import that into a database or open it up with Excel or whatever.
-
-### MySQL
-
-You can output the result as SQL queries to insert/update a MySQL table:
-
-```shell
-$ gitstats run <git-repository-url> --format=sql | mysql -u <user> -p <table>
-```
-
-### Limit the number of commits processed
-
-You can limit the number of commits to process using the `--max` parameter:
-
-```shell
-# Process only 100 commits
-$ gitstats run <git-repository-url> --max=100
-```
-
-### Show the progress
-
-You can show a progress bar on stderr using the `--progress` parameter. When using that parameter it makes sense to redirect the output to a file or another command:
-
-```shell
-$ gitstats run <git-repository-url> --progress > file.csv
-```
-
-![](https://i.imgur.com/zoKRker.png)
