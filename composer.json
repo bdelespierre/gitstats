@@ -1,25 +1,38 @@
 {
-    "name": "mnapoli/gitstats",
+    "name": "bdelespierre/gitstats",
     "description": "Iterate through git commits to gather statistics",
     "license": "MIT",
-    "autoload": {
-        "psr-4": {
-            "GitStats\\": "src/"
+    "authors": [
+        {
+            "name": "Benjamin Delespierre",
+            "email": "benjamin.delespierre@gmail.com",
+            "role": "Developer"
+        },
+        {
+            "name": "Matthieu Napoli",
+            "email": "matthieu@mnapoli.fr",
+            "role": "Developer"
         }
-    },
-    "require": {
-        "php": "^7.0",
-        "mnapoli/silly": "~1.6",
-        "php-di/php-di": "~5.4",
-        "symfony/yaml": "~3.1|~4.0",
-        "symfony/filesystem": "~3.1|~4.0"
-    },
-    "config": {
-        "platform": {
-            "php": "7.0"
-        }
-    },
+    ],
     "bin": [
         "gitstats"
-    ]
+    ],
+    "require": {
+        "php": "^7.4",
+        "symfony/console": "^5.2",
+        "symfony/process": "^5.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Bdelespierre\\GitStats\\": "src/",
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+    }
 }
