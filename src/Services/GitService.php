@@ -2,6 +2,7 @@
 
 namespace Bdelespierre\GitStats\Services;
 
+use Bdelespierre\GitStats\Interfaces\ExecutableFinderInterface;
 use Bdelespierre\GitStats\Interfaces\GitServiceInterface;
 use Bdelespierre\GitStats\Interfaces\ProcessServiceInterface;
 use Symfony\Component\Process\ExecutableFinder;
@@ -10,26 +11,29 @@ use Symfony\Component\Process\Process;
 class GitService implements GitServiceInterface
 {
     protected ProcessServiceInterface $process;
+    protected ExecutableFinderInterface $finder;
+    protected ?string $git;
 
-    protected string $git;
-
-    public function __construct(ProcessServiceInterface $process)
-    {
+    public function __construct(
+        ProcessServiceInterface $process,
+        ExecutableFinderInterface $finder
+    ) {
         $this->process = $process;
+        $this->finder = $finder;
         $this->git = $this->getGitPath();
     }
 
-    private function git(array $command, bool $mustRun = false): Process
+    private function git(array $command): Process
     {
         $process = $this->process->make([$this->git, ...$command]);
-        $process->{$mustRun ? 'mustRun' : 'run'}();
+        $process->run();
 
         return $process;
     }
 
-    private function getGitPath(): string
+    private function getGitPath(): ?string
     {
-        return (new ExecutableFinder())->find('git');
+        return $this->finder->find('git');
     }
 
     public function isGitAvailable(): bool
@@ -42,27 +46,19 @@ class GitService implements GitServiceInterface
         return $this->git(["rev-parse", "--git-dir"])->isSuccessful();
     }
 
-    /**
-     * @see  https://www.spinics.net/lists/git/msg142043.html
-     */
-    public function isWorkTreeClean(?string &$reason = null): bool
+    public function updateIndex(): bool
     {
-        // update the index
-        $this->git(["update-index", "-q", "--ignore-submodules", "--refresh"], true);
+        return $this->git(["update-index", "-q", "--ignore-submodules", "--refresh"])->isSuccessful();
+    }
 
-        // unstaged changes in the working tree?
-        if (! $this->git(["diff-files", "--quiet", "--ignore-submodules", "--"])->isSuccessful()) {
-            $reason = "you have unstaged changes";
-            return false;
-        }
+    public function hasUnstagedChanges(): bool
+    {
+        return ! $this->git(["diff-files", "--quiet", "--ignore-submodules", "--"])->isSuccessful();
+    }
 
-        // uncommitted changes in the index?
-        if (! $this->git(["diff-index", "--cached", "--quiet", "HEAD", "--ignore-submodules", "--"])->isSuccessful()) {
-            $reason = "your index contains uncommitted changes";
-            return false;
-        }
-
-        return true;
+    public function hasUncommittedChanges(): bool
+    {
+        return ! $this->git(["diff-index", "--cached", "--quiet", "HEAD", "--ignore-submodules", "--"])->isSuccessful();
     }
 
     public function isValidBranch(string $branch): bool
@@ -77,11 +73,7 @@ class GitService implements GitServiceInterface
 
     public function getCommits(string $branch): iterable
     {
-        $commits = $this->git(["rev-list", $branch], true)->getOutput();
-        $commits = explode(PHP_EOL, $commits);
-        $commits = array_filter($commits);
-
-        return $commits;
+        return array_filter(explode(PHP_EOL, $this->git(["rev-list", $branch], true)->getOutput()));
     }
 
     public function getCommitTimestamp(string $commit): int

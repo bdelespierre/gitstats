@@ -50,7 +50,9 @@ class Run extends Command
             $output->writeln("<error>{$e->getMessage()}</error>");
             return self::FAILURE;
         } finally {
-            $this->git->checkout($branch);
+            if (isset($branch)) {
+                $this->git->checkout($branch);
+            }
         }
 
         return self::SUCCESS;
@@ -66,8 +68,18 @@ class Run extends Command
             throw new \RuntimeException(sprintf("Cannot proceed: %s is not a git repository.", getcwd()));
         }
 
-        if (! $this->git->isWorkTreeClean($reason)) {
-            throw new \RuntimeException("Cannot proceed: {$reason}. Please commit or stash them.");
+        if (! $this->git->updateIndex()) {
+            throw new \RuntimeException("Cannot proceed: unable to update index");
+        }
+
+        if ($this->git->hasUnstagedChanges()) {
+            throw new \RuntimeException("Cannot proceed: you have unstaged changes." .
+                "Please commit or stash them.");
+        }
+
+        if ($this->git->hasUncommittedChanges()) {
+            throw new \RuntimeException("Cannot proceed: your index contains uncommitted changes." .
+                "Please commit or stash them.");
         }
     }
 

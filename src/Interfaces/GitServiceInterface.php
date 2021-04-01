@@ -8,7 +8,11 @@ interface GitServiceInterface
 
     public function isGitRepository(): bool;
 
-    public function isWorkTreeClean(?string &$reason = null): bool;
+    public function updateIndex(): bool;
+
+    public function hasUnstagedChanges(): bool;
+
+    public function hasUncommittedChanges(): bool;
 
     public function isValidBranch(string $branch): bool;
 

@@ -12,7 +12,7 @@ use Symfony\Component\Process\ExecutableFinder as SymfonyExecutableFinder;
 
 $process = new ProcessService;
 $finder = new ExecutableFinder(new SymfonyExecutableFinder);
-$git = new GitService($process);
+$git = new GitService($process, $finder);
 
 $application = new Application();
 $application->add(new Run($git, $process));
