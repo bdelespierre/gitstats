@@ -4,11 +4,14 @@
 require __DIR__.'/../vendor/autoload.php';
 
 use Bdelespierre\GitStats\Command\Run;
+use Bdelespierre\GitStats\Services\ExecutableFinder;
 use Bdelespierre\GitStats\Services\GitService;
 use Bdelespierre\GitStats\Services\ProcessService;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Process\ExecutableFinder as SymfonyExecutableFinder;
 
 $process = new ProcessService;
+$finder = new ExecutableFinder(new SymfonyExecutableFinder);
 $git = new GitService($process);
 
 $application = new Application();
