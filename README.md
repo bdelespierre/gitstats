@@ -1,8 +1,15 @@
-# Iterate through git commits to gather statistics
+# GitStats
+
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/bdelespierre/gitstats.svg?style=flat-square)](https://packagist.org/packages/bdelespierre/gitstats)
+[![Build Status](https://img.shields.io/travis/bdelespierre/gitstats/master.svg?style=flat-square)](https://travis-ci.org/bdelespierre/gitstats)
+[![Quality Score](https://img.shields.io/scrutinizer/g/bdelespierre/gitstats.svg?style=flat-square)](https://scrutinizer-ci.com/g/bdelespierre/gitstats)
+[![Total Downloads](https://img.shields.io/packagist/dt/bdelespierre/gitstats.svg?style=flat-square)](https://packagist.org/packages/bdelespierre/gitstats)
+
+Rewinds your Git history to compute stats.
 
 ## Installation
 
-```
+```bash
 composer global require bdelespierre/gitstats
 ```
 
@@ -25,8 +32,8 @@ return [
 
 - Run the application:
 
-```shell
-$ gitstats run
+```bash
+gitstats run
 ```
 
 The output is formatted as CSV:
@@ -43,7 +50,7 @@ a731d6c9d91c8e4f07db0bec6e22c912a55baef2,"2017-10-22 18:02:03","MIT License","Ma
 
 You can write the output to a file:
 
-```shell
-$ gitstats run > gistats.csv
+```bash
+gitstats run > gistats.csv
 ```
 
