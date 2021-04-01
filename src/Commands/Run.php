@@ -1,6 +1,6 @@
 <?php
 
-namespace Bdelespierre\GitStats\Command;
+namespace Bdelespierre\GitStats\Commands;
 
 use Bdelespierre\GitStats\Interfaces\GitServiceInterface;
 use Bdelespierre\GitStats\Interfaces\ProcessServiceInterface;

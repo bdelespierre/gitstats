@@ -3,7 +3,7 @@
 
 require __DIR__.'/../vendor/autoload.php';
 
-use Bdelespierre\GitStats\Command\Run;
+use Bdelespierre\GitStats\Commands\Run;
 use Bdelespierre\GitStats\Services\ExecutableFinder;
 use Bdelespierre\GitStats\Services\GitService;
 use Bdelespierre\GitStats\Services\ProcessService;
