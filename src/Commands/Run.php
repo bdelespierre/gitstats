@@ -4,21 +4,18 @@ namespace Bdelespierre\GitStats\Commands;
 
 use Bdelespierre\GitStats\Interfaces\GitServiceInterface;
 use Bdelespierre\GitStats\Interfaces\ProcessServiceInterface;
-use Bdelespierre\GitStats\Services\ProcessService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
 
 class Run extends Command
 {
     protected GitServiceInterface $git;
     protected ProcessServiceInterface $process;
 
-    public function __construct(GitServiceInterface $git, ProcessService $process)
+    public function __construct(GitServiceInterface $git, ProcessServiceInterface $process)
     {
         $this->git = $git;
         $this->process = $process;
@@ -69,16 +66,16 @@ class Run extends Command
         }
 
         if (! $this->git->updateIndex()) {
-            throw new \RuntimeException("Cannot proceed: unable to update index");
+            throw new \RuntimeException("Cannot proceed: unable to update index.");
         }
 
         if ($this->git->hasUnstagedChanges()) {
-            throw new \RuntimeException("Cannot proceed: you have unstaged changes." .
+            throw new \RuntimeException("Cannot proceed: you have unstaged changes. " .
                 "Please commit or stash them.");
         }
 
         if ($this->git->hasUncommittedChanges()) {
-            throw new \RuntimeException("Cannot proceed: your index contains uncommitted changes." .
+            throw new \RuntimeException("Cannot proceed: your index contains uncommitted changes. " .
                 "Please commit or stash them.");
         }
     }
@@ -99,21 +96,10 @@ class Run extends Command
         $file = $input->getArgument('tasks');
 
         if (! is_readable($file)) {
-            throw new \RuntimeException("File {$file} does not exists");
+            throw new \RuntimeException("File {$file} does not exists.");
         }
 
         return (require $file)['tasks'] ?? [];
-    }
-
-    private function copyBranch(string $branch): string
-    {
-        $copyBranch = uniqid('gitstats-');
-
-        if (! $this->git->copyBranch($branch, $copyBranch)) {
-            throw new \RuntimeException("Unable to copy {$branch} to {$copyBranch}.");
-        }
-
-        return $copyBranch;
     }
 
     private function runTasks(array $tasks, iterable $commits): \Generator
@@ -134,10 +120,7 @@ class Run extends Command
                 if (is_array($command)) {
                     $output = $this->process->run($command)->getOutput();
                 } elseif (is_string($command)) {
-                    exec($command, $output);
-                    $output = implode(PHP_EOL, $output);
-                } elseif (is_callable($command)) {
-                    $output = $command($this->git);
+                    $output = $this->process->exec($command);
                 }
 
                 $data[$name] = trim($output);

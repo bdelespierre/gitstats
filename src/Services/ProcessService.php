@@ -24,4 +24,11 @@ class ProcessService implements ProcessServiceInterface
 
         return $process;
     }
+
+    public function exec(string $command): string
+    {
+        exec($command, $output);
+
+        return implode(PHP_EOL, $output);
+    }
 }
