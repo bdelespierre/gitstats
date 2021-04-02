@@ -1,9 +1,11 @@
 # GitStats
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/bdelespierre/gitstats.svg?style=flat-square)](https://packagist.org/packages/bdelespierre/gitstats)
-[![Build Status](https://img.shields.io/travis/bdelespierre/gitstats/master.svg?style=flat-square)](https://travis-ci.org/bdelespierre/gitstats)
-[![Quality Score](https://img.shields.io/scrutinizer/g/bdelespierre/gitstats.svg?style=flat-square)](https://scrutinizer-ci.com/g/bdelespierre/gitstats)
-[![Total Downloads](https://img.shields.io/packagist/dt/bdelespierre/gitstats.svg?style=flat-square)](https://packagist.org/packages/bdelespierre/gitstats)
+[![Latest Version on Packagist][ico-version]][link-packagist]
+[![Software License][ico-license]](LICENSE.md)
+[![Build Status][ico-travis]][link-travis]
+[![Coverage Status][ico-scrutinizer]][link-scrutinizer]
+[![Quality Score][ico-code-quality]][link-code-quality]
+[![Total Downloads][ico-downloads]][link-downloads]
 
 Rewinds your Git history to compute stats.
 
@@ -13,9 +15,29 @@ Rewinds your Git history to compute stats.
 composer global require bdelespierre/gitstats
 ```
 
+<details><summary>Add composer global vendor/bin directory to your PATH</summary>
+
+Best way to do it is to add these lines to your `~/.profile`:
+
+```bash
+# Composer 1 global vendor/bin to PATH
+if [ -d "$HOME/.composer/vendor/bin" ] ; then
+    PATH="$PATH:$HOME/.composer/vendor/bin"
+fi
+
+# Composer 2 global vendor/bin to PATH
+if [ -d "$HOME/.config/composer/vendor/bin" ] ; then
+    PATH="$PATH:$HOME/.config/composer/vendor/bin"
+fi
+
+export PATH
+```
+
+</details>
+
 ## Usage
 
-- Add a `.gitstats.php` file in your project root directory:
+Add a `.gitstats.php` file in your project root directory:
 
 ```php
 <?php
@@ -30,7 +52,7 @@ return [
 ];
 ```
 
-- Run the application:
+Run the application:
 
 ```bash
 gitstats run
@@ -54,3 +76,46 @@ You can write the output to a file:
 gitstats run > gistats.csv
 ```
 
+## Change log
+
+Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+
+## Testing
+
+``` bash
+$ composer test
+```
+
+## Contributing
+
+Please see [CONTRIBUTING](CONTRIBUTING.md) and [CODE_OF_CONDUCT](CODE_OF_CONDUCT.md) for details.
+
+## Security
+
+If you discover any security related issues, please email :author_email instead of using the issue tracker.
+
+## Credits
+
+- [Benjamin Delespierre][link-author-bdelespierre]
+- [Matthieu Napoli][link-author-mnapoli]
+- [All Contributors][link-contributors]
+
+## License
+
+The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+
+[ico-version]: https://img.shields.io/packagist/v/bdelespierre/gitstats.svg?style=flat-square
+[ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
+[ico-travis]: https://img.shields.io/travis/bdelespierre/gitstats/master.svg?style=flat-square
+[ico-scrutinizer]: https://img.shields.io/scrutinizer/coverage/g/bdelespierre/gitstats.svg?style=flat-square
+[ico-code-quality]: https://img.shields.io/scrutinizer/g/bdelespierre/gitstats.svg?style=flat-square
+[ico-downloads]: https://img.shields.io/packagist/dt/bdelespierre/gitstats.svg?style=flat-square
+
+[link-packagist]: https://packagist.org/packages/bdelespierre/gitstats
+[link-travis]: https://travis-ci.org/bdelespierre/gitstats
+[link-scrutinizer]: https://scrutinizer-ci.com/g/bdelespierre/gitstats/code-structure
+[link-code-quality]: https://scrutinizer-ci.com/g/bdelespierre/gitstats
+[link-downloads]: https://packagist.org/packages/bdelespierre/gitstats
+[link-author-bdelespierre]: https://github.com/bdelespierre
+[link-author-mnapoli]: https://github.com/mnapoli
+[link-contributors]: ../../contributors
