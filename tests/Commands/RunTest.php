@@ -33,9 +33,12 @@ class RunTest extends TestCase
             $this->getProcessServiceMock()
         );
 
+        $exit = $command->run($input, $output);
+        //var_dump($output->buffer);
+
         $this->assertEquals(
             $result['exitCode'],
-            $command->run($input, $output)
+            $exit
         );
 
         $this->assertStringMatchesFormat(
@@ -46,60 +49,45 @@ class RunTest extends TestCase
 
     public function runDataProvider()
     {
+        $commits = [
+            // Commit                                  => Timestamp
+            "0e75bcac756226986f9e6ba745c0f1944ee482db" => 1617273600,
+            "1cd263613b1b3bb96bff86a04c0e0c42c9427f32" => 1617273601,
+            "2159438bd963174acac8518d9d58e85fc5fb431f" => 1617273602,
+            "3dd0cf355552553eebc3614ada24c305393c628c" => 1617273603,
+            "4731d6c9d91c8e4f07db0bec6e22c912a55baef2" => 1617273604,
+        ];
+
         return [
             "Successful run" => [
                 'git' => [
                     'branch' => "master",
-                    'commits' => [
-                        "0e75bcac756226986f9e6ba745c0f1944ee482db",
-                        "1cd263613b1b3bb96bff86a04c0e0c42c9427f32",
-                        "2159438bd963174acac8518d9d58e85fc5fb431f",
-                        "3dd0cf355552553eebc3614ada24c305393c628c",
-                        "4731d6c9d91c8e4f07db0bec6e22c912a55baef2",
-                    ],
-                    'timestamps' => [
-                        1617273600,
-                        1617273601,
-                        1617273602,
-                        1617273603,
-                        1617273604,
-                    ],
+                    'commits' => array_keys($commits),
+                    'timestamps' => array_values($commits),
                 ],
                 'inputs' => [
                     'branch' => "master",
-                    'tasks' => __DIR__ . '/data/tasks_a.php',
+                    'tasks' => __DIR__ . '/Fixtures/tasks_a.php',
                 ],
                 'result' => [
                     'exitCode' => Command::SUCCESS,
-                    'output' => file_get_contents(__DIR__ . '/data/result.csv')
+                    'output' => file_get_contents(__DIR__ . '/Fixtures/results_a.csv')
                 ],
             ],
 
             "Successful run with string commands" => [
                 'git' => [
                     'branch' => "master",
-                    'commits' => [
-                        "0e75bcac756226986f9e6ba745c0f1944ee482db",
-                        "1cd263613b1b3bb96bff86a04c0e0c42c9427f32",
-                        "2159438bd963174acac8518d9d58e85fc5fb431f",
-                        "3dd0cf355552553eebc3614ada24c305393c628c",
-                        "4731d6c9d91c8e4f07db0bec6e22c912a55baef2",
-                    ],
-                    'timestamps' => [
-                        1617273600,
-                        1617273601,
-                        1617273602,
-                        1617273603,
-                        1617273604,
-                    ],
+                    'commits' => array_keys($commits),
+                    'timestamps' => array_values($commits),
                 ],
                 'inputs' => [
                     'branch' => "master",
-                    'tasks' => __DIR__ . '/data/tasks_b.php',
+                    'tasks' => __DIR__ . '/Fixtures/tasks_b.php',
                 ],
                 'result' => [
                     'exitCode' => Command::SUCCESS,
-                    'output' => file_get_contents(__DIR__ . '/data/result.csv')
+                    'output' => file_get_contents(__DIR__ . '/Fixtures/results_b.csv')
                 ],
             ],
 
@@ -175,6 +163,70 @@ class RunTest extends TestCase
                 'result' => [
                     'exitCode' => Command::FAILURE,
                     'output' => "<error>File no-such-file does not exists.</error>\n",
+                ],
+            ],
+
+            "Closures in taskfile" => [
+                'git' => [
+                    'branch' => "master",
+                    'commits' => array_keys($commits),
+                    'timestamps' => array_values($commits),
+                ],
+                'inputs' => [
+                    'branch' => "master",
+                    'tasks' => __DIR__ . '/Fixtures/tasks_c.php',
+                ],
+                'result' => [
+                    'exitCode' => Command::SUCCESS,
+                    'output' => file_get_contents(__DIR__ . '/Fixtures/results_c.csv')
+                ],
+            ],
+
+            "Patterns in taskfile" => [
+                'git' => [
+                    'branch' => "master",
+                    'commits' => array_keys($commits),
+                    'timestamps' => array_values($commits),
+                ],
+                'inputs' => [
+                    'branch' => "master",
+                    'tasks' => __DIR__ . '/Fixtures/tasks_d.php',
+                ],
+                'result' => [
+                    'exitCode' => Command::SUCCESS,
+                    'output' => file_get_contents(__DIR__ . '/Fixtures/results_d.csv')
+                ],
+            ],
+
+            "Invalid pattern in taskfile" => [
+                'git' => [
+                    'branch' => "master",
+                    'commits' => array_keys($commits),
+                    'timestamps' => array_values($commits),
+                ],
+                'inputs' => [
+                    'branch' => "master",
+                    'tasks' => __DIR__ . '/Fixtures/tasks_e.php',
+                ],
+                'result' => [
+                    'exitCode' => Command::FAILURE,
+                    'output' => "<error>Invalid regex: '%'.</error>\n",
+                ],
+            ],
+
+            "Invalid task in taskfile" => [
+                'git' => [
+                    'branch' => "master",
+                    'commits' => array_keys($commits),
+                    'timestamps' => array_values($commits),
+                ],
+                'inputs' => [
+                    'branch' => "master",
+                    'tasks' => __DIR__ . '/Fixtures/tasks_f.php',
+                ],
+                'result' => [
+                    'exitCode' => Command::FAILURE,
+                    'output' => "<error>Invalid command: '123'.</error>\n",
                 ],
             ],
         ];

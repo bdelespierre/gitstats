@@ -104,8 +104,10 @@ class Run extends Command
 
     private function runTasks(array $tasks, iterable $commits): \Generator
     {
+        $this->validateTasks($tasks);
+
         // headers
-        yield ['commit', 'date', ...array_keys($tasks)];
+        yield $this->getHeaders($tasks);
 
         foreach ($commits as $commit) {
             $this->git->checkout($commit);
@@ -116,18 +118,94 @@ class Run extends Command
                 'date' => date('Y-m-d H:i:s', $timestamp),
             ];
 
-            foreach ($tasks as $name => $command) {
-                if (is_array($command)) {
-                    $output = $this->process->run($command)->getOutput();
-                } elseif (is_string($command)) {
-                    $output = $this->process->exec($command);
+            foreach ($tasks as $name => $task) {
+                if (! is_array($task) || ! isset($task['command'])) {
+                    $task = ['command' => $task];
                 }
 
-                $data[$name] = trim($output);
+                $data[$name] = $this->runCommand($task['command'], $commit);
+
+                if (isset($task['patterns'])) {
+                    foreach ($task['patterns'] as $sub => $regex) {
+                        $data["{$name}:{$sub}"] = $this->match($data[$name], $regex);
+                    }
+
+                    // erase any previous output
+                    unset($data[$name]);
+                }
             }
 
             yield $data;
         }
+    }
+
+    private function validateTasks(array $tasks)
+    {
+        foreach ($tasks as $task) {
+            if (is_array($task) && isset($task['patterns'])) {
+                foreach ($task['patterns'] as $regex) {
+                    if (false === @preg_match($regex, null)) {
+                        throw new \InvalidArgumentException("Invalid regex: '{$regex}'.");
+                    }
+                }
+            }
+
+            $command = is_array($task) && isset($task['command']) ? $task['command'] : $task;
+
+            if (! is_array($command) && ! is_callable($command) && ! is_string($command)) {
+                throw new \InvalidArgumentException("Invalid command: '{$command}'.");
+            }
+        }
+    }
+
+    private function getHeaders(array $tasks)
+    {
+        $headers = ['commit', 'date'];
+
+        foreach ($tasks as $name => $task) {
+            if (is_array($task) && isset($task['patterns'])) {
+                foreach ($task['patterns'] as $sub => $regex) {
+                    $headers[] = "{$name}:{$sub}";
+                }
+            } else {
+                $headers[] = $name;
+            }
+        }
+
+        return $headers;
+    }
+
+    /**
+     * Runs the specific command.
+     *
+     * @param  array|callable|string $command
+     * @return string
+     * @throws \InvalidArgumentException
+     */
+    private function runCommand($command, string $commit): string
+    {
+        if (is_array($command)) {
+            $output = $this->process->run($command)->getOutput();
+        } elseif (is_callable($command)) {
+            $output = $command($commit);
+        } elseif (is_string($command)) {
+            $output = $this->process->exec($command);
+        }
+
+        return trim($output);
+    }
+
+    private function match(string $output, string $regex)
+    {
+        $match = preg_match($regex, $output, $matches);
+
+        // if the pattern contains a capturing group
+        if (isset($matches[1])) {
+            return $matches[1];
+        }
+
+        // did the regex match output?
+        return $match ? true : false;
     }
 
     private function format(iterable $data): \Generator
